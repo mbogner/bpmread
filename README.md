@@ -108,7 +108,7 @@ detected beats of an audio file.
    Open a terminal in the project directory and run:
 
    ```shell
-   python beatmarker.py --clip "your davinci clip name" --color "Yellow" --command "add"
+   python bpmread_davinci_resolve.py --clip "your davinci clip name" --color "Yellow" --command "add"
    ```
 
     - Replace `"Your Clip Name"` with the actual name of your audio clip in DaVinci Resolve.
@@ -119,11 +119,11 @@ detected beats of an audio file.
 
 - **Add Markers**:
     ```shell
-    python beatmarker.py --clip "MyAudioClip" --color "Green" --command "add"
+    python bpmread_davinci_resolve.py --clip "MyAudioClip" --color "Green" --command "add"
     ```
 - **Remove Markers**:
     ```shell
-    python beatmarker.py --clip "MyAudioClip" --color "Green" --command "remove"
+    python bpmread_davinci_resolve.py --clip "MyAudioClip" --color "Green" --command "remove"
     ```
 
 ## Notes
