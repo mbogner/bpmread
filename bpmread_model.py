@@ -1,4 +1,5 @@
 from dataclasses import dataclass, asdict
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -19,3 +20,10 @@ class FileMarker:
         if isinstance(obj, FileMarker):
             return asdict(obj)
         raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
+
+@dataclass(frozen=True)
+class AudioClip:
+    davinci_clip: Any
+    name: str
+    path: str

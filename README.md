@@ -1,41 +1,40 @@
-# bpmread
+# BPM Read
 
-Simple python based tool to get beats per minute (BPM) from a song. It was tested with .mp3 and .wav files.
+A simple Python-based tool to analyze beats per minute (BPM) from songs and automatically add or remove beat markers in
+DaVinci Resolve.
 
 ## Setup
 
-First checkout the project via git and change into the created directory
+First, clone the project via git and navigate into the created directory:
 
 ```shell
 git clone git@github.com:mbogner/bpmread.git
 cd bpmread
 ```
 
-It is recommended to use a python virtual environment.
-
-This can be created by
+It is recommended to use a Python virtual environment. This can be created by:
 
 ```shell
 python3 -m venv venv
 ```
 
-and then activated by
+Activate the virtual environment with:
 
 ```shell
 source venv/bin/activate
 ```
 
-Make sure to always work inside your virtual environment which means having it activated before doing something.
+Ensure the virtual environment is activated whenever you work on the project.
 
 ## Installation
 
-With the venv activated you can then install the requirements by
+With the virtual environment activated, install the required packages:
 
 ```shell
 pip install -r requirements.txt
 ```
 
-In case it complains about an outdated pip run
+If you encounter an outdated pip warning, update pip with:
 
 ```shell
 pip install --upgrade pip
@@ -43,19 +42,21 @@ pip install --upgrade pip
 
 ## Usage
 
-The script then can be run
+### bpmread Script
+
+The `bpmread.py` script calculates the BPM of audio files. To run the script, use:
 
 ```shell
 python3 bpmread.py
 ```
 
-This will greet you with a usage message. Please read it.
+After running the script, you will see a usage message. Follow the instructions provided.
 
-After successful run there will be a `<input_file>.bpm.json` file next to each input file.
+After a successful run, a `<input_file>.bpm.json` file will be generated next to each input file.
 
-### Sample
+#### Sample Usage
 
-The following sample shows how to run the script with multiple input files
+To run the script with multiple input files:
 
 ```shell
 #!/usr/bin/env bash
@@ -66,7 +67,8 @@ python3 bpmread.py --input_file \
   test/test_input2.wav test/test_input2.mp3
 ```
 
-Results in 4 .bpm.json files. One next to each input file. Here is the sample `test/test_input1.wav.bpm.json`:
+This command will generate four `.bpm.json` files, one next to each input file. Here is a sample
+`test/test_input1.wav.bpm.json`:
 
 ```json
 {
@@ -88,4 +90,58 @@ Results in 4 .bpm.json files. One next to each input file. Here is the sample `t
 }
 ```
 
-Note: Most beat frames in the sample response were removed for readability.
+(Note: Most beat frames in the sample response were removed for readability.)
+
+### BeatMarker Script
+
+The `BeatMarker` script allows for automatic addition or removal of beat markers in DaVinci Resolve based on the
+detected beats of an audio file.
+
+#### Running the Script
+
+1. **Prepare Your DaVinci Resolve Project**:
+    - Open DaVinci Resolve and load your project.
+    - Ensure the audio clip you want to analyze is in the Media Pool's root bin.
+
+2. **Run the BeatMarker Script**:
+
+   Open a terminal in the project directory and run:
+
+   ```shell
+   python beatmarker.py --clip "your davinci clip name" --color "Yellow" --command "add"
+   ```
+
+    - Replace `"Your Clip Name"` with the actual name of your audio clip in DaVinci Resolve.
+    - Use `--color` to specify the color of markers (default is "Yellow").
+    - Use `--command` to specify the action (`add` to add markers, `remove` to remove them).
+
+#### Example Commands
+
+- **Add Markers**:
+    ```shell
+    python beatmarker.py --clip "MyAudioClip" --color "Green" --command "add"
+    ```
+- **Remove Markers**:
+    ```shell
+    python beatmarker.py --clip "MyAudioClip" --color "Green" --command "remove"
+    ```
+
+## Notes
+
+- Ensure the audio clip is named correctly in DaVinci Resolve and matches the `--clip` parameter.
+- The script assumes you have access to the DaVinci Resolve Python API through `DaVinciResolveScript`.
+- The audio file must be accessible from the script's execution environment.
+
+## Troubleshooting
+
+- **No audio clip found**: Make sure the audio clip is in the Media Pool's root bin.
+- **Failed to add markers**: Verify the clip name and ensure DaVinci Resolve is properly configured for scripting.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE.txt](LICENSE.txt) file for details.
+
+## Acknowledgments
+
+- [librosa](https://librosa.org/) for audio processing.
+- DaVinci Resolve for providing a powerful scripting API.

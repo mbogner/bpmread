@@ -2,14 +2,13 @@ import argparse
 import json
 import os
 
-import librosa
-
+from bpmread_analysis import analyse_beats
 from bpmread_config import Config
 from bpmread_logger import logger
 from bpmread_model import ImportFile, FileMarker
 
 
-class App:
+class BPMRead:
     input_files: list[ImportFile]
 
     def __init__(self, input_files: list[ImportFile]):
@@ -18,12 +17,10 @@ class App:
     def run(self):
         for input_file in self.input_files:
             logger.info(f"process {input_file.path}")
-            audio_file = librosa.load(input_file.path)
-            y, sr = audio_file
-            tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
+            tempo, beat_frames, _ = analyse_beats(input_file.path)
             file_marker = FileMarker(
                 file=input_file,
-                bpm=float(tempo[0]),
+                bpm=float(tempo),
                 beat_frames=beat_frames.tolist(),
             )
             with open(f'{input_file.path}.bpm.json', 'w') as file:
@@ -34,7 +31,7 @@ class App:
 
 def main():
     logger.info(f"starting {Config.APP_NAME}, v{Config.APP_VERSION}, environment: {Config.APP_ENVIRONMENT}")
-    App(parse_arguments()).run()
+    BPMRead(parse_arguments()).run()
 
 
 def parse_arguments() -> list[ImportFile]:
