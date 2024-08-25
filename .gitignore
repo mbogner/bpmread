@@ -1,0 +1,6 @@
+test/
+venv/
+.idea/
+.vscode/
+requirements-install.sh
+test.sh
