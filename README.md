@@ -51,7 +51,7 @@ python3 bpmread.py
 
 This will greet you with a usage message. Please read it.
 
-After successful run there will be a `<input_file>.bpm.yml` file next to each input file.
+After successful run there will be a `<input_file>.bpm.json` file next to each input file.
 
 ### Sample
 
@@ -66,11 +66,26 @@ python3 bpmread.py --input_file \
   test/test_input2.wav test/test_input2.mp3
 ```
 
-Results in 4 .bpm.yml files. One next to each input file. Here is the sample `test/test_input1.wav.bpm.yml`:
+Results in 4 .bpm.json files. One next to each input file. Here is the sample `test/test_input1.wav.bpm.json`:
 
-```yaml
-result:
-  - name: test_input1
-    extension: .wav
-    bpm: 92.29
+```json
+{
+  "file": {
+    "path": "test/test_input1.mp3",
+    "name": "test_input1",
+    "ext": ".mp3"
+  },
+  "bpm": 92.28515625,
+  "beat_frames": [
+    28,
+    52,
+    78,
+    106,
+    6354,
+    6380,
+    6408
+  ]
+}
 ```
+
+Note: Most beat frames in the sample response were removed for readability.

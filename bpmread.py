@@ -1,11 +1,12 @@
 import argparse
+import json
 import os
 
 import librosa
 
 from bpmread_config import Config
 from bpmread_logger import logger
-from bpmread_model import ImportFile
+from bpmread_model import ImportFile, FileMarker
 
 
 class App:
@@ -16,18 +17,19 @@ class App:
 
     def run(self):
         for input_file in self.input_files:
-            logger.info(f"process {input_file}")
+            logger.info(f"process {input_file.path}")
             audio_file = librosa.load(input_file.path)
             y, sr = audio_file
-            tempo, _ = librosa.beat.beat_track(y=y, sr=sr)  # second result is beat_frames
-            bpm = f'{tempo[0]:.2f}'
-            with open(f'{input_file.path}.bpm.yml', 'w') as file:
-                file.write(f"""result:
-  - name: {input_file.name}
-    extension: {input_file.ext}
-    bpm: {bpm}
-""")
-            logger.debug(f'processed {input_file}')
+            tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
+            file_marker = FileMarker(
+                file=input_file,
+                bpm=float(tempo[0]),
+                beat_frames=beat_frames.tolist(),
+            )
+            with open(f'{input_file.path}.bpm.json', 'w') as file:
+                json_str = json.dumps(file_marker, default=FileMarker.file_marker_to_dict, indent=2)
+                file.write(json_str)
+            logger.debug(f'processed {input_file.path}')
 
 
 def main():

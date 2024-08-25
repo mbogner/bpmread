@@ -4,3 +4,4 @@ venv/
 .vscode/
 requirements-install.sh
 test.sh
+*.iml
