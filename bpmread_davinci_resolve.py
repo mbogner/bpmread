@@ -12,6 +12,9 @@ from bpmread_model import AudioClip
 
 class BeatMarker:
     resolve = DaVinciResolveScript.scriptapp("Resolve")
+    if resolve is None:
+        raise RuntimeError("Resolve script couldn't be loaded. Is it running?")
+    pm = resolve.GetProjectManager()
     project = resolve.GetProjectManager().GetCurrentProject()
 
     @staticmethod
