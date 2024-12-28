@@ -145,3 +145,24 @@ This project is licensed under the MIT License. See the [LICENSE.txt](LICENSE.tx
 
 - [librosa](https://librosa.org/) for audio processing.
 - DaVinci Resolve for providing a powerful scripting API.
+
+## Distribution
+
+Here is how to create a binary release of this tool.
+
+```shell
+pip install pyinstaller
+pyinstaller --onefile bpmread_davinci_resolve.py
+```
+
+### runner script
+
+#### unix
+
+included as `run_unix.sh`
+
+```shell
+#!/bin/bash
+chmod +x ./bpmread_davinci_resolve
+./bpmread_davinci_resolve "$@"
+```
