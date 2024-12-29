@@ -1,6 +1,6 @@
 # BPM Read
 
-The script `bpmread_davinci_resolve` script allows for automatic addition or removal of beat markers in DaVinci Resolve
+The script `bpmread_davinci_resolve` allows for automatic addition or removal of beat markers in DaVinci Resolve
 based on the detected beats of an audio file.
 
 ```
