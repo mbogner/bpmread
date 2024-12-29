@@ -94,7 +94,7 @@ The chosen defaults for start-bpm, tightness, and hop-length are reasonable for 
 suitability depends on the specific characteristics of the audio you’re analyzing. Here’s a breakdown of each default
 and its impact:
 
-### `start-bpm`
+### `start-bpm` (default: 120)
 
 - **What it does**:
     - `start-bpm` provides an initial estimate for the tempo. The beat tracking algorithm uses this value as a starting
@@ -109,7 +109,7 @@ and its impact:
     - Leave `start-bpm` unspecified (`None`) to let the algorithm estimate the tempo dynamically, though this may take
       slightly more processing time.
 
-### `tightness`
+### `tightness` (default: 100)
 
 - **What it does**:
     - `tightness` controls how strictly the beat tracker adheres to the `start-bpm` estimate.
@@ -125,12 +125,12 @@ and its impact:
     - **Decrease (e.g., 50–75)**:
         - If the audio has a lot of tempo variation, such as live performances or jazz.
 
-### `hop-length`: 512
+### `hop-length` (default: 512)
 
 - **What it does**:
     - `hop-length` defines the number of audio samples between successive frames analyzed by the algorithm.
     - It determines the temporal resolution of the analysis.
-- **Why 512 is reasonable**:
+- **Why 512 is a reasonable default**:
     - It provides a good trade-off between temporal resolution and computational efficiency for most audio sampled at
       44.1 kHz or 48 kHz.
     - At a sampling rate of 44.1 kHz, a hop length of 512 corresponds to a frame duration of ~11.6 ms, which is
