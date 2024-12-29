@@ -22,30 +22,31 @@ import librosa
 import numpy as np
 
 import DaVinciResolveScript
-from bpmread_analysis import analyse_beats
+from bpmread_analysis import Analyzer
 from bpmread_logger import logger
-from bpmread_model import AudioClip, BeatsOptions
+from bpmread_model import AudioClip, BeatsOptions, Analysis
 
 
 class Beats:
-    resolve = DaVinciResolveScript.scriptapp("Resolve")
-    if resolve is None:
-        raise RuntimeError("Resolve script couldn't be loaded. Is it running?")
-    pm = resolve.GetProjectManager()
-    project = resolve.GetProjectManager().GetCurrentProject()
+    __resolve = None
 
-    @staticmethod
-    def remove_all_markers(options: BeatsOptions):
-        audio_clip: AudioClip = Beats.__find_clip_by_name(options.clip)
+    def __load_resolve(self) -> any:
+        if self.__resolve is None:
+            self.__resolve = DaVinciResolveScript.scriptapp("Resolve")
+            if self.__resolve is None:
+                raise RuntimeError("Resolve script couldn't be loaded. Is it running?")
+        return self.__resolve
+
+    def remove_all_markers(self, options: BeatsOptions):
+        audio_clip: AudioClip = self.__find_clip_by_name(options.clip)
         Beats.__remove_all_markers(audio_clip.davinci_clip, options.color)
         logger.info(f"Removed all {options.color} markers from clip {options.clip}")
 
         # Refresh the Fairlight page to ensure markers are removed
-        Beats.__refresh_fairlight_page()
+        self.__refresh_fairlight_page()
 
-    @staticmethod
-    def add_markers(options: BeatsOptions):
-        audio_clip: AudioClip = Beats.__find_clip_by_name(options.clip)
+    def add_markers(self, options: BeatsOptions):
+        audio_clip: AudioClip = self.__find_clip_by_name(options.clip)
         tempo, frame_list = Beats.__beat_infos(
             path=audio_clip.path,
             start_bpm=options.start_bpm,
@@ -66,17 +67,17 @@ class Beats:
         logger.info(f"Added {i} markers, tempo={tempo}")
 
         # Refresh the Fairlight page to ensure markers are visible
-        Beats.__refresh_fairlight_page()
+        self.__refresh_fairlight_page()
 
     @staticmethod
     def __beat_infos(path: str, start_bpm, tightness, hop_length, davinci_clip) -> tuple[float, list[int]]:
-        """
-        Returns the tempo and frame list for detected beats in an audio file.
-        Enhanced with additional preprocessing and onset detection techniques.
-        """
         try:
-            tempo, beat_frames, sr = analyse_beats(path=path, start_bpm=start_bpm, tightness=tightness,
-                                                   hop_length=hop_length)
+            estimated_tempo, beat_frames, sr = Analyzer.analyse_beats(Analysis(
+                path=path,
+                start_bpm=start_bpm,
+                tightness=tightness,
+                hop_length=hop_length
+            ))
 
             # Calculate frame numbers based on the clip's properties
             frame_rate = float(davinci_clip.GetClipProperty("FPS"))
@@ -94,7 +95,10 @@ class Beats:
             total_frames = int(frame_rate * duration_seconds)
             timeline_frames = timeline_frames[timeline_frames < total_frames]
 
-            return float(tempo), timeline_frames.tolist()
+            if isinstance(estimated_tempo, np.ndarray):
+                estimated_tempo = estimated_tempo[0]  # Extract the first tempo value if it's an array
+
+            return estimated_tempo, timeline_frames.tolist()
 
         except Exception as e:
             logger.error(f"Error in beat detection: {e}")
@@ -129,14 +133,16 @@ class Beats:
 
         return audio_clips
 
-    @staticmethod
-    def __load_all_clips():
-        Beats.resolve.OpenPage("fairlight")
-        if not Beats.project:
+    def __load_all_clips(self):
+        resolve = self.__load_resolve()
+        resolve.OpenPage("fairlight")
+
+        project = resolve.GetProjectManager().GetCurrentProject()
+        if project is None:
             raise RuntimeError("No project is loaded")
 
         # Get the media pool
-        media_pool = Beats.project.GetMediaPool()
+        media_pool = project.GetMediaPool()
         root_bin = media_pool.GetRootFolder()
 
         # Go to the root bin
@@ -149,9 +155,8 @@ class Beats:
                                "Please add an audio clip and try again!")
         return davinci_clips
 
-    @staticmethod
-    def __find_clip_by_name(clip_name: str):
-        audio_clips = Beats.__filter_audio_clips(Beats.__load_all_clips())
+    def __find_clip_by_name(self, clip_name: str):
+        audio_clips = Beats.__filter_audio_clips(self.__load_all_clips())
         available_clips = [clip.name for clip in audio_clips]
         for audio_clip in audio_clips:
             if audio_clip.name.lower() == clip_name.lower():
@@ -159,14 +164,14 @@ class Beats:
                 return audio_clip
         raise RuntimeError(f'No clip with name "{clip_name}" found. Available clips: {available_clips}')
 
-    @staticmethod
-    def __refresh_fairlight_page():
+    def __refresh_fairlight_page(self):
         # Switch between pages to refresh
-        Beats.resolve.OpenPage("edit")
-        Beats.resolve.OpenPage("fairlight")
+        resolve = self.__load_resolve()
+        resolve.OpenPage("edit")
+        resolve.OpenPage("fairlight")
 
         # Explicitly set the current timeline to ensure refresh
-        project = Beats.resolve.GetProjectManager().GetCurrentProject()
+        project = resolve.GetProjectManager().GetCurrentProject()
         current_timeline = project.GetCurrentTimeline()
         project.SetCurrentTimeline(current_timeline)
 
@@ -177,7 +182,7 @@ def parse_arguments() -> BeatsOptions:
     parser.add_argument('--color', type=str, help='Marker color (default: Yellow)', default='Yellow', required=False)
     parser.add_argument('--command', type=str, help='"add" to add markers or "remove" to delete markers', default='add',
                         required=False)
-    parser.add_argument('--start-bpm', type=float, help='Initial guess for the tempo (BPM, default: 120.0)',
+    parser.add_argument('--start-bpm', type=float, help='Initial guess for the tempo (BPM, default: 120)',
                         default=120.0, required=False)
     parser.add_argument('--tightness', type=float, help='Tightness parameter for beat tracking (default 100.0)',
                         default=100.0, required=False)

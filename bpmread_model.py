@@ -1,6 +1,8 @@
 from dataclasses import dataclass, asdict
 from typing import Any
 
+import numpy as np
+
 
 @dataclass(frozen=True)
 class ImportFile:
@@ -50,3 +52,16 @@ class BeatsOptions:
             raise ValueError(f"Invalid command: {self.command}. Valid commands are: {BeatsOptions.__VALID_COMMANDS}")
         if self.color not in BeatsOptions.__VALID_COLORS:
             raise ValueError(f"Invalid marker color: {self.color}. Valid colors are: {BeatsOptions.__VALID_COLORS}")
+
+
+@dataclass(frozen=False)
+class Analysis:
+    path: str
+    start_bpm: float
+    tightness: float
+    hop_length: int
+    loaded: bool = False
+    y: np.ndarray = None
+    sr: int = None
+    y_percussive: np.ndarray = None
+    onset_env: np.ndarray = None

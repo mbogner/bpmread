@@ -1,43 +1,54 @@
 import librosa
 import numpy as np
+from librosa.feature.rhythm import tempo
 
 from bpmread_logger import logger
+from bpmread_model import Analysis
 
 
-def analyse_beats(path: str, start_bpm: float = 120.0, tightness: float = 100.0, hop_length: int = 512):
-    """
-    Analyzes the beats of an audio file and returns the estimated tempo and beat frames.
+class Analyzer:
 
-    Args:
-        path (str): Path to the audio file.
-        start_bpm (float): Initial guess for the tempo (in beats per minute).
-        tightness (float): Tightness parameter for beat tracking. Higher values restrict the beat tracker.
-        hop_length (int): Number of samples between successive frames for onset detection.
+    @staticmethod
+    def __load_config(config: Analysis):
+        if not config.loaded:
+            logger.debug(f"Open file {config.path}")
+            config.y, config.sr = librosa.load(config.path, sr=None)
+            logger.debug(f"Apply harmonic-percussive source separation for {config.path}")
+            _, config.y_percussive = librosa.effects.hpss(config.y)
+            logger.debug(f"Compute onset envelope for {config.path}")
+            config.onset_env = librosa.onset.onset_strength(y=config.y_percussive,
+                                                            sr=config.sr,
+                                                            hop_length=config.hop_length,
+                                                            aggregate=np.median)
+            config.loaded = True
 
-    Returns:
-        tuple: Estimated tempo (float), array of beat frame indices (numpy.ndarray), sample rate (int)
-    """
-    logger.debug(f"Analyzing {path}")
+    @staticmethod
+    def estimate_tempo(config: Analysis) -> float:
+        Analyzer.__load_config(config)
+        logger.debug(f"Estimating tempo for {config.path}")
+        calculated_tempo = tempo(onset_envelope=config.onset_env,
+                                 sr=config.sr,
+                                 start_bpm=config.start_bpm,
+                                 hop_length=config.hop_length,
+                                 aggregate=np.median)
+        if isinstance(calculated_tempo, np.ndarray):
+            calculated_tempo = calculated_tempo[0]  # Extract the first tempo value if it's an array
+        logger.info(f"Estimated Tempo of {config.path}: {calculated_tempo:.2f} BPM")
+        # noinspection PyTypeChecker
+        # checked before
+        return calculated_tempo
 
-    # Load the audio file
-    y, sr = librosa.load(path, sr=None)  # Load audio with native sampling rate
-
-    # Apply a high-pass filter to remove low-frequency noise
-    y = librosa.effects.preemphasis(y)
-
-    # Use a harmonic-percussive source separation (HPSS) to focus on percussive elements
-    _, y_percussive = librosa.effects.hpss(y)
-
-    # Use the percussive component for beat tracking
-    onset_env = librosa.onset.onset_strength(y=y_percussive, sr=sr, hop_length=hop_length, aggregate=np.median)
-
-    # Fine-tune the beat tracking algorithm with flexible parameters
-    tempo, beat_frames = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=hop_length,
-                                                 start_bpm=start_bpm, tightness=tightness)
-
-    if isinstance(tempo, np.ndarray):
-        tempo = tempo[0]  # Extract the first element if tempo is an array
-
-    logger.info(f"Analysis of {path} completed. Tempo: {tempo:.2f} BPM")
-
-    return tempo, beat_frames, sr
+    @staticmethod
+    def analyse_beats(config: Analysis) -> tuple[float, np.ndarray, int]:
+        Analyzer.__load_config(config)
+        estimated_tempo = Analyzer.estimate_tempo(config)
+        logger.debug(f"Analyzing beats {config.path}")
+        calculated_tempo, beat_frames = librosa.beat.beat_track(onset_envelope=config.onset_env,
+                                                                sr=config.sr,
+                                                                hop_length=config.hop_length,
+                                                                start_bpm=estimated_tempo,
+                                                                tightness=config.tightness)
+        if isinstance(calculated_tempo, np.ndarray):
+            calculated_tempo = calculated_tempo[0]  # Extract the first element if tempo is an array
+        logger.info(f"Analysis of {config.path} completed - (Tempo={calculated_tempo:.2f} BPM)")
+        return calculated_tempo, beat_frames, config.sr
