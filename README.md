@@ -65,29 +65,6 @@ You can download the binary for mac arm64 under the [release section](https://gi
 - **No audio clip found**: Make sure the audio clip is in the Media Pool's root bin.
 - **Failed to add markers**: Verify the clip name and ensure DaVinci Resolve is properly configured for scripting.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE.txt](LICENSE.txt) file for details.
-
-## Acknowledgments
-
-- [librosa](https://librosa.org/) for audio processing.
-- DaVinci Resolve for providing a powerful scripting API.
-
-## Distribution
-
-Here is how to create a binary release of this tool.
-
-```shell
-pyinstaller --onefile bpmread_davinci_resolve.py
-```
-
-This requires `pyinstaller`:
-
-```shell
-pip install pyinstaller
-```
-
 ## Advanced Parameters
 
 The chosen defaults for start-bpm, tightness, and hop-length are reasonable for many typical audio tracks, but their
@@ -150,3 +127,17 @@ and its impact:
 | **Classical**             | 60.0        | 75.0        | 1024         |
 | **Jazz/Live Performance** | 90.0        | 50.0        | 256          |
 | **General Purpose**       | 120.0       | 100.0       | 512          |
+
+## Distribution
+
+Here is how to create a binary release of this tool.
+
+```shell
+pyinstaller --onefile bpmread_davinci_resolve.py
+```
+
+This requires `pyinstaller`:
+
+```shell
+pip install pyinstaller
+```
