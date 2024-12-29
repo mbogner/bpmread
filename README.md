@@ -1,103 +1,31 @@
 # BPM Read
 
-A simple Python-based tool to analyze beats per minute (BPM) from songs and automatically add or remove beat markers in
-DaVinci Resolve.
+The script `bpmread_davinci_resolve` script allows for automatic addition or removal of beat markers in DaVinci Resolve
+based on the detected beats of an audio file.
 
-## Setup
+```
+usage: bpmread_davinci_resolve [-h] --clip CLIP [--color COLOR] [--command COMMAND]
+          [--start-bpm START_BPM] [--tightness TIGHTNESS] [--hop-length HOP_LENGTH]
 
-First, clone the project via git and navigate into the created directory:
+Automated beat marker creation in DaVinci Resolve Studio.
 
-```shell
-git clone git@github.com:mbogner/bpmread.git
-cd bpmread
+options:
+-h, --help                    show this help message and exit
+--clip CLIP                  Name of the audio clip in the MediaPool
+--color COLOR           Marker color (default: Yellow)
+--command COMMAND    
+                                     "add" to add markers or "remove" to delete markers
+--start-bpm START_BPM
+                                     Initial guess for the tempo (BPM, default: 120.0)
+--tightness TIGHTNESS
+                                     Tightness parameter for beat tracking (default 100.0)
+ --hop-length HOP_LENGTH
+                                     Number of samples between successive frames (default: 512)
 ```
 
-It is recommended to use a Python virtual environment. This can be created by:
+You can download the binary for mac arm64 under the release section of gitlab.
 
-```shell
-python3 -m venv venv
-```
-
-Activate the virtual environment with:
-
-```shell
-source venv/bin/activate
-```
-
-Ensure the virtual environment is activated whenever you work on the project.
-
-## Installation
-
-With the virtual environment activated, install the required packages:
-
-```shell
-pip install -r requirements.txt
-```
-
-If you encounter an outdated pip warning, update pip with:
-
-```shell
-pip install --upgrade pip
-```
-
-## Usage
-
-### bpmread Script
-
-The `bpmread.py` script calculates the BPM of audio files. To run the script, use:
-
-```shell
-python3 bpmread.py
-```
-
-After running the script, you will see a usage message. Follow the instructions provided.
-
-After a successful run, a `<input_file>.bpm.json` file will be generated next to each input file.
-
-#### Sample Usage
-
-To run the script with multiple input files:
-
-```shell
-#!/usr/bin/env bash
-source venv/bin/activate
-
-python3 bpmread.py --input_file \
-  test/test_input1.wav test/test_input1.mp3 \
-  test/test_input2.wav test/test_input2.mp3
-```
-
-This command will generate four `.bpm.json` files, one next to each input file. Here is a sample
-`test/test_input1.wav.bpm.json`:
-
-```json
-{
-  "file": {
-    "path": "test/test_input1.mp3",
-    "name": "test_input1",
-    "ext": ".mp3"
-  },
-  "bpm": 92.28515625,
-  "beat_frames": [
-    28,
-    52,
-    78,
-    106,
-    6354,
-    6380,
-    6408
-  ]
-}
-```
-
-(Note: Most beat frames in the sample response were removed for readability.)
-
-### BeatMarker Script
-
-The `BeatMarker` script allows for automatic addition or removal of beat markers in DaVinci Resolve based on the
-detected beats of an audio file.
-
-#### Running the Script
+## Running the Script
 
 1. **Prepare Your DaVinci Resolve Project**:
     - Open DaVinci Resolve and load your project.
@@ -115,15 +43,15 @@ detected beats of an audio file.
     - Use `--color` to specify the color of markers (default is "Yellow").
     - Use `--command` to specify the action (`add` to add markers, `remove` to remove them).
 
-#### Example Commands
+## Example Commands
 
 - **Add Markers**:
     ```shell
-    python bpmread_davinci_resolve.py --clip "MyAudioClip" --color "Green" --command "add"
+    bpmread_davinci_resolve --clip "MyAudioClip" --color "Green" --command "add"
     ```
 - **Remove Markers**:
     ```shell
-    python bpmread_davinci_resolve.py --clip "MyAudioClip" --color "Green" --command "remove"
+    bpmread_davinci_resolve --clip "MyAudioClip" --color "Green" --command "remove"
     ```
 
 ## Notes
@@ -151,20 +79,13 @@ This project is licensed under the MIT License. See the [LICENSE.txt](LICENSE.tx
 Here is how to create a binary release of this tool.
 
 ```shell
-pip install pyinstaller
 pyinstaller --onefile bpmread_davinci_resolve.py
 ```
 
-### runner script
-
-#### unix
-
-included as `run_unix.sh`
+This requires `pyinstaller`:
 
 ```shell
-#!/bin/bash
-chmod +x ./bpmread_davinci_resolve
-./bpmread_davinci_resolve "$@"
+pip install pyinstaller
 ```
 
 ## Advanced Parameters
@@ -220,7 +141,7 @@ and its impact:
     - **Decrease (e.g., 256)**:
         - For high-tempo music or audio with rapid rhythmic changes, where finer resolution is needed.
 
-### Recommended Adjustments Based on Use Case
+## Recommended Adjustments Based on Use Case
 
 | Use Case                  | `start-bpm` | `tightness` | `hop-length` |
 |---------------------------|-------------|-------------|--------------|
