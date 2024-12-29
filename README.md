@@ -23,7 +23,7 @@ options:
                                      Number of samples between successive frames (default: 512)
 ```
 
-You can download the binary for mac arm64 under the release section of gitlab.
+You can download the binary for mac arm64 under the [release section](https://github.com/mbogner/bpmread/releases).
 
 ## Running the Script
 
