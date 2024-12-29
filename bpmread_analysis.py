@@ -17,7 +17,7 @@ def analyse_beats(path: str, start_bpm: float = 120.0, tightness: float = 100.0,
     Returns:
         tuple: Estimated tempo (float), array of beat frame indices (numpy.ndarray), sample rate (int)
     """
-    logger.info(f"Analyzing {path}")
+    logger.debug(f"Analyzing {path}")
 
     # Load the audio file
     y, sr = librosa.load(path, sr=None)  # Load audio with native sampling rate
