@@ -3,6 +3,8 @@
 The script `bpmread_davinci_resolve` allows for automatic addition or removal of beat markers in DaVinci Resolve
 based on the detected beats of an audio file.
 
+It only works with Studio version because free version doesn't support scripting.
+
 ```
 usage: bpmread_davinci_resolve [-h] --clip CLIP [--color COLOR] [--command COMMAND]
           [--start-bpm START_BPM] [--tightness TIGHTNESS] [--hop-length HOP_LENGTH]
@@ -31,25 +33,23 @@ You can download the binary for mac arm64 under the [release section](https://gi
     - Open DaVinci Resolve and load your project.
     - Ensure the audio clip you want to analyze is in the Media Pool's root bin.
 
-2. **Run the BeatMarker Script**:
+2. **Run the `bpmread_davinci_resolve` Binary**:
 
    Open a terminal in the project directory and run:
 
    ```shell
-   python bpmread_davinci_resolve.py --clip "your davinci clip name" --color "Yellow" --command "add"
+   bpmread_davinci_resolve --clip "your davinci clip name.mp3"
    ```
 
-    - Replace `"Your Clip Name"` with the actual name of your audio clip in DaVinci Resolve.
-    - Use `--color` to specify the color of markers (default is "Yellow").
-    - Use `--command` to specify the action (`add` to add markers, `remove` to remove them).
+    - Replace `"your davinci clip name.mp3"` with the actual name of your audio clip in DaVinci Resolve.
 
-## Example Commands
+### Further Examples
 
-- **Add Markers**:
+- **Add Green Markers**:
     ```shell
     bpmread_davinci_resolve --clip "MyAudioClip" --color "Green" --command "add"
     ```
-- **Remove Markers**:
+- **Remove Green Markers**:
     ```shell
     bpmread_davinci_resolve --clip "MyAudioClip" --color "Green" --command "remove"
     ```
